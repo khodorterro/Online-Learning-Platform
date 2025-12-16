@@ -1,10 +1,11 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using OnlineLearning.BusinessLayer.Interfaces;
+using OnlineLearning.BusinessLayer.Services;
 using OnlineLearning.DataAccessLayer.Context;
 using OnlineLearning.DataAccessLayer.Interfaces;
 using OnlineLearning.DataAccessLayer.Repositories;
-using OnlineLearning.BusinessLayer.Interfaces;
-using OnlineLearning.BusinessLayer.Services;
+using OnlineLearningPlatform.Presentation.Mapping;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -23,8 +24,14 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
 });
 
+builder.Services.AddAutoMapper(typeof(MappingProfile));
+
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<ICourseRepository, CourseRepository>();
+builder.Services.AddScoped<ICourseService, CourseService>();
+builder.Services.AddScoped<ICourseCategoryRepository, CourseCategoryRepository>();
+builder.Services.AddScoped<ICourseCategoryService, CourseCategoryService>();
 
 
 var app = builder.Build();
