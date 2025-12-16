@@ -4,6 +4,7 @@ using OnlineLearningPlatform.Presentation.DTOs;
 using OnlineLearningPlatform.Presentation.DTOs.CourseCategoryDTOs;
 using OnlineLearningPlatform.Presentation.DTOs.CoursesDTOs;
 using OnlineLearningPlatform.Presentation.DTOs.LessonDTOs;
+using OnlineLearningPlatform.Presentation.DTOs.QuestionDTOs;
 using OnlineLearningPlatform.Presentation.DTOs.QuizDTOs;
 
 namespace OnlineLearningPlatform.Presentation.Mapping
@@ -21,6 +22,9 @@ namespace OnlineLearningPlatform.Presentation.Mapping
             CreateMap<Lesson,LessonResponseDTO>();
 
             CreateMap<Quiz, QuizResponseDTO>();
+
+            CreateMap<Question, QuestionResponseDTO>();
+
         }
     }
 }

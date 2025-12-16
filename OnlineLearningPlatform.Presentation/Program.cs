@@ -37,6 +37,8 @@ builder.Services.AddScoped<IlessonService, LessonService>();
 builder.Services.AddScoped<ILessonRepository, LessonRepository>();
 builder.Services.AddScoped<IQuizService, QuizService>();
 builder.Services.AddScoped<IQuizRepository, QuizRepository>();
+builder.Services.AddScoped<IQuestionService, QuestionService>();
+builder.Services.AddScoped<IQuestionRepository, QuestionRepository>();
 
 var app = builder.Build();
 
