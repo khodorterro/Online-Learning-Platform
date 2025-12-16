@@ -3,6 +3,7 @@ using OnlineLearning.DataAccessLayer.Entities;
 using OnlineLearningPlatform.Presentation.DTOs;
 using OnlineLearningPlatform.Presentation.DTOs.CourseCategoryDTOs;
 using OnlineLearningPlatform.Presentation.DTOs.CoursesDTOs;
+using OnlineLearningPlatform.Presentation.DTOs.LessonDTOs;
 
 namespace OnlineLearningPlatform.Presentation.Mapping
 {
@@ -15,6 +16,8 @@ namespace OnlineLearningPlatform.Presentation.Mapping
             CreateMap<Course, CourseResponseDTO>();
 
             CreateMap<CourseCategory, CourseCategoryResponseDTO>();
+
+            CreateMap<Lesson,LessonResponseDTO>();
         }
     }
 }
