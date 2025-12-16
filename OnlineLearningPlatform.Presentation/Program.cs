@@ -6,6 +6,7 @@ using OnlineLearning.DataAccessLayer.Context;
 using OnlineLearning.DataAccessLayer.Interfaces;
 using OnlineLearning.DataAccessLayer.Repositories;
 using OnlineLearningPlatform.Presentation.Mapping;
+using OnlineLearningPlatform.Presentation.Middelwares;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -43,6 +44,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+app.UseMiddleware<GlobalExceptionMiddleware>();
 
 app.UseHttpsRedirection();
 
