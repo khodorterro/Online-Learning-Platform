@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using OnlineLearning.DataAccessLayer.Entities;
 using OnlineLearningPlatform.Presentation.DTOs;
+using OnlineLearningPlatform.Presentation.DTOs.AnswerDTOs;
 using OnlineLearningPlatform.Presentation.DTOs.CourseCategoryDTOs;
 using OnlineLearningPlatform.Presentation.DTOs.CoursesDTOs;
 using OnlineLearningPlatform.Presentation.DTOs.LessonDTOs;
@@ -25,6 +26,7 @@ namespace OnlineLearningPlatform.Presentation.Mapping
 
             CreateMap<Question, QuestionResponseDTO>();
 
+            CreateMap<Answer, AnswerResponseDTO>();
         }
     }
 }
