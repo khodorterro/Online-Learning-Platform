@@ -10,14 +10,14 @@ using AutoMapper;
 
 namespace OnlineLearningPlatform.Presentation.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/Coursecategory")]
     [ApiController]
-    public class CourseCategoryConroller : ControllerBase
+    public class CourseCategoryController : ControllerBase
     {
         private readonly ICourseCategoryService _courseCategoryService;
 
         private readonly IMapper _mapper;
-        public CourseCategoryConroller(ICourseCategoryService courseCategoryService,IMapper mapper)
+        public CourseCategoryController(ICourseCategoryService courseCategoryService,IMapper mapper)
         {
             _courseCategoryService = courseCategoryService;
 
