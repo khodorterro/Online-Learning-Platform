@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace OnlineLearning.DataAccessLayer.Repositories
 {
-    public class QuestionRepository:IQuestionRepository
+    public class QuestionRepository : IQuestionRepository
     {
         private readonly AppDbContext _appDbContext;
 
@@ -54,6 +54,18 @@ namespace OnlineLearning.DataAccessLayer.Repositories
 
             _appDbContext.Questions.Remove(question);
             await _appDbContext.SaveChangesAsync();
+        }
+        public async Task<List<Question>> GetRandomByQuizIdAsync(int quizId, int count)
+        {
+            return await _appDbContext.Questions
+                .Where(q => q.QuizId == quizId)
+                .OrderBy(q => Guid.NewGuid())
+                .Take(count)
+                .ToListAsync();
+        }
+        public async Task<int> CountByQuizIdAsync(int quizId)
+        {
+            return await _appDbContext.Questions.Where(q=>q.QuizId==quizId).CountAsync();
         }
     }
 }

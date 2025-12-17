@@ -18,6 +18,19 @@ namespace OnlineLearning.DataAccessLayer.Repositories
             _appDbContext = appDbContext;
         }
 
+        public async Task<int> GetPassingScoreAsync(int quizId)
+        {
+            var quiz = await _appDbContext.Quizzes
+                .AsNoTracking()
+                .FirstOrDefaultAsync(q => q.Id == quizId);
+
+            if (quiz == null)
+                throw new KeyNotFoundException("Quiz not found");
+
+            return quiz.PassingScore;
+        }
+
+
         public async Task<Quiz?> GetByIdAsync(int id)
         {
             return await _appDbContext.Quizzes

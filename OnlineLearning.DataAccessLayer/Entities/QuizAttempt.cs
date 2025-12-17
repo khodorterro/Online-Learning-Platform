@@ -15,6 +15,7 @@ public partial class QuizAttempt
 
     public DateTime AttemptDate { get; set; }
 
+    public bool IsSubmitted { get; set; }
     public virtual Quiz Quiz { get; set; } = null!;
 
     public virtual ICollection<QuizAttemptAnswer> QuizAttemptAnswers { get; set; } = new List<QuizAttemptAnswer>();

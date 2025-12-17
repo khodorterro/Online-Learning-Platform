@@ -41,6 +41,10 @@ builder.Services.AddScoped<IQuestionService, QuestionService>();
 builder.Services.AddScoped<IQuestionRepository, QuestionRepository>();
 builder.Services.AddScoped<IAnswerRepository, AnswerRepository>();
 builder.Services.AddScoped<IAnswerService, AnswerService>();
+builder.Services.AddScoped<IQuizAttemptRepository, QuizAttemptRepository>();
+builder.Services.AddScoped<IQuizAttemptService, QuizAttemptService>();
+builder.Services.AddScoped<IQuizAttemptAnswerRepository, QuizAttemptAnswerRepository>();
+builder.Services.AddScoped<IQuizAttemptAnswerService, QuizAttemptAnswerService>();
 
 var app = builder.Build();
 

@@ -11,7 +11,7 @@ public partial class QuizAttemptAnswer
 
     public int QuestionId { get; set; }
 
-    public int SelectedAnswerId { get; set; }
+    public int? SelectedAnswerId { get; set; }
 
     public bool IsCorrect { get; set; }
 

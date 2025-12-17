@@ -33,6 +33,17 @@ namespace OnlineLearning.DataAccessLayer.Repositories
                 .Where(a => a.QuestionId == questionId)
                 .ToListAsync();
         }
+        public async Task<bool> IsCorrectAnswerAsync(int answerId)
+        {
+            var answer = await _appDbContext.Answers
+                .AsNoTracking()
+                .FirstOrDefaultAsync(a => a.Id == answerId);
+
+            if (answer == null)
+                throw new KeyNotFoundException("Selected answer does not exist");
+
+            return answer.IsCorrect;
+        }
 
         public async Task AddAsync(Answer answer)
         {

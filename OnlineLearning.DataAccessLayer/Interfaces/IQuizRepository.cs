@@ -15,5 +15,7 @@ namespace OnlineLearning.DataAccessLayer.Interfaces
         Task AddAsync(Quiz quiz);
         Task UpdateAsync(Quiz quiz);
         Task DeleteAsync(int id);
+        Task<int> GetPassingScoreAsync(int quizId);
+
     }
 }
