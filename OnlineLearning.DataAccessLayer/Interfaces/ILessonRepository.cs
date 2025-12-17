@@ -14,6 +14,8 @@ namespace OnlineLearning.DataAccessLayer.Interfaces
         public Task AddAsync(Lesson lesson);
         public Task UpdateAsync(Lesson lesson);
         public Task DeleteAsync(int LessonID);
+        Task<int> CountByCourseIdAsync(int courseId);
+
 
     }
 }

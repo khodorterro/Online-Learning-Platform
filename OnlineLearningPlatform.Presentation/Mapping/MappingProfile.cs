@@ -5,6 +5,7 @@ using OnlineLearningPlatform.Presentation.DTOs.AnswerDTOs;
 using OnlineLearningPlatform.Presentation.DTOs.CourseCategoryDTOs;
 using OnlineLearningPlatform.Presentation.DTOs.CoursesDTOs;
 using OnlineLearningPlatform.Presentation.DTOs.EnrolledCourseDTOs;
+using OnlineLearningPlatform.Presentation.DTOs.LessonCompletionDTOs;
 using OnlineLearningPlatform.Presentation.DTOs.LessonDTOs;
 using OnlineLearningPlatform.Presentation.DTOs.QuestionDTOs;
 using OnlineLearningPlatform.Presentation.DTOs.QuizAttemptAnswerDTOs;
@@ -51,7 +52,9 @@ namespace OnlineLearningPlatform.Presentation.Mapping
               .ForMember(dest => dest.CourseTitle,
                      opt => opt.MapFrom(src => src.Course.Title));
 
-
+            CreateMap<LessonCompletion, LessonCompletionResponseDTO>()
+                .ForMember(dest => dest.LessonTitle,
+                     opt => opt.MapFrom(src => src.Lesson.Title));
 
         }
     }

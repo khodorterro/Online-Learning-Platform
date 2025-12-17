@@ -47,6 +47,7 @@ builder.Services.AddScoped<IQuizAttemptAnswerRepository, QuizAttemptAnswerReposi
 builder.Services.AddScoped<IQuizAttemptAnswerService, QuizAttemptAnswerService>();
 builder.Services.AddScoped<IEnrolledCourseService, EnrolledCourseService>();
 builder.Services.AddScoped<IEnrolledCourseRepository, EnrolledCourseRepository>();
+builder.Services.AddScoped<ICourseProgressService, CourseProgressService>();
 
 var app = builder.Build();
 

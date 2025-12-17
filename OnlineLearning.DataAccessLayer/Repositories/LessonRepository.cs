@@ -49,5 +49,11 @@ namespace OnlineLearning.DataAccessLayer.Repositories
             await _appDbContext.SaveChangesAsync();
 
         }
+        public async Task<int> CountByCourseIdAsync(int courseId)
+        {
+            return await _appDbContext.Lessons
+                .CountAsync(l => l.CourseId == courseId);
+        }
+
     }
 }
