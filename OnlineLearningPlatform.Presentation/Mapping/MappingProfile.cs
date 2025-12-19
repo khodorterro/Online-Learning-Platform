@@ -56,6 +56,11 @@ namespace OnlineLearningPlatform.Presentation.Mapping
                 .ForMember(dest => dest.LessonTitle,
                      opt => opt.MapFrom(src => src.Lesson.Title));
 
+            CreateMap<Review, ReviewResponseDTO>()
+                .ForMember(dest => dest.UserName,
+                     opt => opt.MapFrom(src => src.User.FullName));
+
+
         }
     }
 }

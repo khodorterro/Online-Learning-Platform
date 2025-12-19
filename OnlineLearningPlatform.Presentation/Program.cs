@@ -39,7 +39,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             )
         };
 
-        //CUSTOM ERROR HANDLING
+
         options.Events = new JwtBearerEvents
         {
             OnChallenge = async context =>
@@ -102,6 +102,8 @@ builder.Services.AddScoped<ICourseProgressService, CourseProgressService>();
 builder.Services.AddScoped<ILessonCompletionRepository, LessonCompletionRepository>();
 builder.Services.AddScoped<ILessonCompletionService, LessonCompletionService>();
 builder.Services.AddScoped<IAccessValidatorService, AccessValidatorService>();
+builder.Services.AddScoped<ICertificateRepository, CertificateRepository>();
+builder.Services.AddScoped<IReviewRepository, ReviewRepository>();
 
 builder.Services.AddScoped<JwtTokenGenerator>();
 
