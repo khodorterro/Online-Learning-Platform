@@ -9,13 +9,12 @@ namespace OnlineLearning.DataAccessLayer.Interfaces
 {
     public interface  ILessonRepository
     {
-        public Task<IEnumerable<Lesson>> GetByCourseIdAsync(int courseId);
-        public Task<Lesson?> GetByIdAsync(int LessonID);
-        public Task AddAsync(Lesson lesson);
-        public Task UpdateAsync(Lesson lesson);
-        public Task DeleteAsync(int LessonID);
+        Task<Lesson?> GetByIdAsync(int id);
+        Task<IEnumerable<Lesson>> GetByCourseIdAsync(int courseId);
+        Task AddAsync(Lesson lesson);
+        Task UpdateAsync(Lesson lesson);
+        Task DeleteAsync(Lesson lesson);
         Task<int> CountByCourseIdAsync(int courseId);
-
 
     }
 }

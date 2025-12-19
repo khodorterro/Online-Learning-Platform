@@ -59,5 +59,12 @@ namespace OnlineLearning.DataAccessLayer.Repositories
         {
             return await appDbContext.Courses.AsNoTracking().Where(c=>c.CategoryId == categoryId).ToListAsync();
         }
+        public async Task<IEnumerable<Course>> GetByIdsAsync(IEnumerable<int> courseIds)
+        {
+            return await appDbContext.Courses
+                .Where(c => courseIds.Contains(c.Id))
+                .ToListAsync();
+        }
+
     }
 }

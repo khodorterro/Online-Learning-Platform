@@ -101,6 +101,7 @@ builder.Services.AddScoped<IEnrolledCourseRepository, EnrolledCourseRepository>(
 builder.Services.AddScoped<ICourseProgressService, CourseProgressService>();
 builder.Services.AddScoped<ILessonCompletionRepository, LessonCompletionRepository>();
 builder.Services.AddScoped<ILessonCompletionService, LessonCompletionService>();
+builder.Services.AddScoped<IAccessValidatorService, AccessValidatorService>();
 
 builder.Services.AddScoped<JwtTokenGenerator>();
 

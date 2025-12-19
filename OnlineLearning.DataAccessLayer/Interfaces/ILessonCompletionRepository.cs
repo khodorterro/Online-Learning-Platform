@@ -9,8 +9,9 @@ namespace OnlineLearning.DataAccessLayer.Interfaces
 {
     public  interface ILessonCompletionRepository
     {
-        Task<bool> IsCompletedAsync(int userId, int lessonId);
+        Task<bool> IsLessonCompletedAsync(int userId, int lessonId);
         Task AddAsync(LessonCompletion completion);
+
         Task<IEnumerable<LessonCompletion>> GetByUserIdAsync(int userId);
         Task<int> CountCompletedLessonsAsync(int userId, int courseId);
     }

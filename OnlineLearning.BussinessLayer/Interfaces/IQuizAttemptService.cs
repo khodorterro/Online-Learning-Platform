@@ -13,7 +13,7 @@ namespace OnlineLearning.BusinessLayer.Interfaces
         Task<IEnumerable<QuizAttempt>> GetByUserIdAsync(int userId);
         Task<IEnumerable<QuizAttempt>> GetByQuizIdAsync(int quizId);
 
-        Task<QuizAttempt> CreateAsync(int quizId,int userId);
+        Task<QuizAttempt> CreateAsync(int quizId, int userId, string role);
         Task<bool> IsPassedAsync(int attemptId);
     }
 }

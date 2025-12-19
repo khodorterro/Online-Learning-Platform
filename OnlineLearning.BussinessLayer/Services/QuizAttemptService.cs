@@ -3,6 +3,7 @@ using OnlineLearning.DataAccessLayer.Entities;
 using OnlineLearning.DataAccessLayer.Interfaces;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -14,22 +15,22 @@ namespace OnlineLearning.BusinessLayer.Services
         private readonly IQuizRepository _quizRepository;
         private readonly IQuestionRepository _questionRepository;
         private readonly IQuizAttemptAnswerRepository _quizAttemptAnswerRepository;
+        private readonly IAccessValidatorService _accessValidator;
 
         public QuizAttemptService(
             IQuizAttemptRepository quizAttemptRepository,
             IQuizRepository quizRepository,
             IQuestionRepository questionRepository,
-            IQuizAttemptAnswerRepository quizAttemptAnswerRepository)
+            IQuizAttemptAnswerRepository quizAttemptAnswerRepository,
+            IAccessValidatorService accessValidator)
         {
             _quizAttemptRepository = quizAttemptRepository;
             _quizRepository = quizRepository;
             _questionRepository = questionRepository;
             _quizAttemptAnswerRepository = quizAttemptAnswerRepository;
+            _accessValidator = accessValidator;
         }
 
-        // -------------------------
-        // GET METHODS
-        // -------------------------
 
         public async Task<QuizAttempt> GetByIdAsync(int id)
         {
@@ -62,8 +63,19 @@ namespace OnlineLearning.BusinessLayer.Services
         }
 
 
-        public async Task<QuizAttempt> CreateAsync(int quizId, int userId)
+        public async Task<QuizAttempt> CreateAsync(int quizId, int userId, string role)
         {
+
+            var quiz = await _quizRepository.GetByIdAsync(quizId);
+            if (quiz == null)
+                throw new KeyNotFoundException("Quiz not found");
+
+            await _accessValidator.ValidateCourseAccessAsync(
+                userId,
+                role,
+                quiz.CourseId
+            );
+
             int totalQuestions = await _questionRepository.CountByQuizIdAsync(quizId);
             if (totalQuestions < 4)
                 throw new InvalidOperationException(
@@ -81,11 +93,11 @@ namespace OnlineLearning.BusinessLayer.Services
 
             await _quizAttemptRepository.AddAsync(attempt);
 
-            // 3️⃣ Select 4 random questions
+
             var selectedQuestions = await _questionRepository
                 .GetRandomByQuizIdAsync(quizId, 4);
 
-            // 4️⃣ Lock selected questions for this attempt
+            
             var attemptAnswers = selectedQuestions.Select(q => new QuizAttemptAnswer
             {
                 AttemptId = attempt.Id,

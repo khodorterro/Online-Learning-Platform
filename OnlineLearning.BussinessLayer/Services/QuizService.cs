@@ -12,10 +12,26 @@ namespace OnlineLearning.BusinessLayer.Services
     public  class QuizService:IQuizService
     {
         private readonly IQuizRepository _quizRepository;
-        public QuizService(IQuizRepository quizRepository)
+        private readonly ICourseRepository _courseRepo;
+        private readonly IAccessValidatorService _accessValidatorService;
+        public QuizService(IQuizRepository quizRepository, ICourseRepository courseRepo,IAccessValidatorService accessValidatorService)
         {
             _quizRepository = quizRepository;
+            _courseRepo = courseRepo;
+            _accessValidatorService = accessValidatorService;
         }
+        private async Task ValidateInstructorOwnershipAsync(int courseId, int instructorId)
+        {
+            var course = await _courseRepo.GetByIdAsync(courseId);
+            if (course == null)
+                throw new KeyNotFoundException("Course not found");
+
+            if (course.CreatedBy != instructorId)
+                throw new UnauthorizedAccessException(
+                    "You are not allowed to manage quizzes for this course"
+                );
+        }
+
         public async Task<Quiz> GetByIdAsync(int id)
         {
             var quiz = await _quizRepository.GetByIdAsync(id);
@@ -25,13 +41,23 @@ namespace OnlineLearning.BusinessLayer.Services
             return quiz;
         }
 
-        public async Task<IEnumerable<Quiz>> GetByCourseIdAsync(int courseId)
+        public async Task<IEnumerable<Quiz>> GetByCourseIdAsync(int courseId,int userId,string role)
         {
+            await _accessValidatorService.ValidateCourseAccessAsync(
+                userId,
+                role,
+                courseId
+            );
+
             return await _quizRepository.GetByCourseIdAsync(courseId);
         }
 
-        public async Task<Quiz> CreateAsync(int courseId,int? lessonId,string title, int passingScore, int? timeLimit)
+
+        public async Task<Quiz> CreateAsync(int courseId,int? lessonId,string title,
+            int passingScore,int? timeLimit,int instructorId)
         {
+            await ValidateInstructorOwnershipAsync(courseId, instructorId);
+
             var quiz = new Quiz
             {
                 CourseId = courseId,
@@ -45,11 +71,14 @@ namespace OnlineLearning.BusinessLayer.Services
             return quiz;
         }
 
-        public async Task<Quiz> UpdateAsync(int id, string title,int passingScore,int? timeLimit)
+
+        public async Task<Quiz?> UpdateAsync(int quizId,string title,int passingScore,int? timeLimit,int instructorId)
         {
-            var quiz = await _quizRepository.GetByIdAsync(id);
+            var quiz = await _quizRepository.GetByIdAsync(quizId);
             if (quiz == null)
-                throw new KeyNotFoundException("Quiz not found");
+                return null;
+
+            await ValidateInstructorOwnershipAsync(quiz.CourseId, instructorId);
 
             quiz.Title = title;
             quiz.PassingScore = passingScore;
@@ -59,10 +88,18 @@ namespace OnlineLearning.BusinessLayer.Services
             return quiz;
         }
 
-        public async Task DeleteAsync(int id)
+
+        public async Task DeleteAsync(int quizId, int instructorId)
         {
-            await _quizRepository.DeleteAsync(id);
+            var quiz = await _quizRepository.GetByIdAsync(quizId);
+            if (quiz == null)
+                throw new KeyNotFoundException("Quiz not found");
+
+            await ValidateInstructorOwnershipAsync(quiz.CourseId, instructorId);
+
+            await _quizRepository.DeleteAsync(quizId);
         }
+
     }
 }
 

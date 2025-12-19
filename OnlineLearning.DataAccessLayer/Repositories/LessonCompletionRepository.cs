@@ -12,29 +12,42 @@ namespace OnlineLearning.DataAccessLayer.Repositories
 {
     public  class LessonCompletionRepository: ILessonCompletionRepository
     {
-        private readonly AppDbContext _appDbContext;
-        public LessonCompletionRepository(AppDbContext appDbContext)
+        private readonly AppDbContext _context;
+
+        public LessonCompletionRepository(AppDbContext context)
         {
-            _appDbContext = appDbContext;
+            _context = context;
         }
-        public async Task<bool> IsCompletedAsync(int userId, int lessonId)
+
+        public async Task<bool> IsLessonCompletedAsync(int userId, int lessonId)
         {
-            return await _appDbContext.LessonCompletions.AnyAsync(cl=>cl.UserId==userId &&  cl.LessonId==lessonId);
+            return await _context.LessonCompletions
+                .AnyAsync(lc =>
+                    lc.UserId == userId &&
+                    lc.LessonId == lessonId);
         }
-        public async Task AddAsync(LessonCompletion lessonCompletion)
+
+        public async Task AddAsync(LessonCompletion completion)
         {
-            _appDbContext.LessonCompletions.Add(lessonCompletion);
-            await _appDbContext.SaveChangesAsync();
+            await _context.LessonCompletions.AddAsync(completion);
+            await _context.SaveChangesAsync();
         }
-        public async Task<IEnumerable< LessonCompletion>>GetByUserIdAsync(int userid)
+
+        public async Task<IEnumerable<LessonCompletion>> GetByUserIdAsync(int userId)
         {
-            return await _appDbContext.LessonCompletions
-                .Include(lc=>lc.Lesson).Where(lc=>lc.UserId==userid).ToListAsync();
+            return await _context.LessonCompletions
+                .Include(lc => lc.Lesson)
+                .Where(lc => lc.UserId == userId)
+                .OrderByDescending(lc => lc.CompletedDate)
+                .ToListAsync();
         }
         public async Task<int> CountCompletedLessonsAsync(int userId, int courseId)
         {
-            return await _appDbContext.LessonCompletions
-                .CountAsync(lc => lc.UserId == userId && lc.Lesson.CourseId == courseId);
+            return await _context.LessonCompletions
+                .CountAsync(lc =>
+                    lc.UserId == userId &&
+                    lc.Lesson.CourseId == courseId
+                );
         }
     }
 }

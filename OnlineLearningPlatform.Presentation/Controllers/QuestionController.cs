@@ -1,18 +1,21 @@
 ﻿using AutoMapper;
-using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using OnlineLearning.BusinessLayer.Helpers;
 using OnlineLearning.BusinessLayer.Interfaces;
 using OnlineLearningPlatform.Presentation.DTOs.QuestionDTOs;
 
 namespace OnlineLearningPlatform.Presentation.Controllers
 {
-    [Route("api/Question")]
+    [Route("api/questions")]
     [ApiController]
+    [Authorize(Roles = "Instructor")] 
     public class QuestionController : ControllerBase
     {
         private readonly IQuestionService _questionService;
         private readonly IMapper _mapper;
-        public QuestionController(IQuestionService questionService, IMapper mapper)
+
+        public QuestionController(IQuestionService questionService,IMapper mapper)
         {
             _questionService = questionService;
             _mapper = mapper;
@@ -21,38 +24,41 @@ namespace OnlineLearningPlatform.Presentation.Controllers
         [HttpGet("{id:int}")]
         public async Task<IActionResult> GetById(int id)
         {
-            var question = await _questionService.GetByIdAsync(id);
+            int instructorId = User.GetUserId();
+
+            var question = await _questionService.GetByIdWithOwnershipAsync(id, instructorId);
+
             return Ok(_mapper.Map<QuestionResponseDTO>(question));
         }
 
         [HttpGet("quiz/{quizId:int}")]
         public async Task<IActionResult> GetByQuiz(int quizId)
         {
-            var questions = await _questionService.GetByQuizIdAsync(quizId);
+            int instructorId = User.GetUserId();
+
+            var questions = await _questionService.GetByQuizIdWithOwnershipAsync(quizId, instructorId);
+
             return Ok(_mapper.Map<IEnumerable<QuestionResponseDTO>>(questions));
         }
 
         [HttpPost]
         public async Task<IActionResult> Create(CreateQuestionDTO dto)
         {
-            var question = await _questionService.CreateAsync(
-                dto.QuizId,
-                dto.QuestionText,
-                dto.QuestionType
-            );
+            int instructorId = User.GetUserId();
 
-            var response = _mapper.Map<QuestionResponseDTO>(question);
-            return CreatedAtAction(nameof(GetById), new { id = response.Id }, response);
+            var question = await _questionService.CreateAsync(dto.QuizId,dto.QuestionText,dto.QuestionType,instructorId);
+
+            return CreatedAtAction(nameof(GetById),new { id = question.Id },_mapper.Map<QuestionResponseDTO>(question));
         }
 
         [HttpPut("{id:int}")]
-        public async Task<IActionResult> Update(int id, UpdateQuestionDTO dto)
+        public async Task<IActionResult> Update(
+            int id,
+            UpdateQuestionDTO dto)
         {
-            var question = await _questionService.UpdateAsync(
-                id,
-                dto.QuestionText,
-                dto.QuestionType
-            );
+            int instructorId = User.GetUserId();
+
+            var question = await _questionService.UpdateAsync(id,dto.QuestionText,dto.QuestionType,instructorId);
 
             return Ok(_mapper.Map<QuestionResponseDTO>(question));
         }
@@ -60,7 +66,9 @@ namespace OnlineLearningPlatform.Presentation.Controllers
         [HttpDelete("{id:int}")]
         public async Task<IActionResult> Delete(int id)
         {
-            await _questionService.DeleteAsync(id);
+            int instructorId = User.GetUserId();
+
+            await _questionService.DeleteAsync(id, instructorId);
             return NoContent();
         }
     }

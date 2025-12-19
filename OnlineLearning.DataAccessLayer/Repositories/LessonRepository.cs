@@ -14,44 +14,48 @@ namespace OnlineLearning.DataAccessLayer.Repositories
 {
     public  class LessonRepository : ILessonRepository
     {
-        private AppDbContext _appDbContext;
-        public LessonRepository(AppDbContext appDbContext)
+        private readonly AppDbContext _context;
+
+        public LessonRepository(AppDbContext context)
         {
-            _appDbContext = appDbContext;
+            _context = context;
         }
 
         public async Task<Lesson?> GetByIdAsync(int id)
         {
-            return await _appDbContext.Lessons.FirstOrDefaultAsync(l => l.Id == id);
+            return await _context.Lessons
+                .FirstOrDefaultAsync(l => l.Id == id);
         }
-        public async Task<IEnumerable<Lesson>> GetByCourseIdAsync(int id)
+
+        public async Task<IEnumerable<Lesson>> GetByCourseIdAsync(int courseId)
         {
-            return await _appDbContext.Lessons.AsNoTracking().Where(l => l.CourseId == id).OrderBy(l=>l.Order).ToListAsync();
+            return await _context.Lessons
+                .Where(l => l.CourseId == courseId)
+                .OrderBy(l => l.Order)
+                .ToListAsync();
         }
+
         public async Task AddAsync(Lesson lesson)
         {
-            await _appDbContext.Lessons.AddAsync(lesson);
-            await _appDbContext.SaveChangesAsync();
+            await _context.Lessons.AddAsync(lesson);
+            await _context.SaveChangesAsync();
         }
+
         public async Task UpdateAsync(Lesson lesson)
         {
-             _appDbContext.Lessons.Update(lesson);
-            await _appDbContext.SaveChangesAsync();
+            _context.Lessons.Update(lesson);
+            await _context.SaveChangesAsync();
         }
 
-        public async Task DeleteAsync(int id)
+        public async Task DeleteAsync(Lesson lesson)
         {
-            var lesson=_appDbContext.Lessons.FirstOrDefault(l => l.Id == id);
-
-            if (lesson == null)
-                return;
-            _appDbContext.Lessons.Remove(lesson);
-            await _appDbContext.SaveChangesAsync();
-
+            _context.Lessons.Remove(lesson);
+            await _context.SaveChangesAsync();
         }
+
         public async Task<int> CountByCourseIdAsync(int courseId)
         {
-            return await _appDbContext.Lessons
+            return await _context.Lessons
                 .CountAsync(l => l.CourseId == courseId);
         }
 

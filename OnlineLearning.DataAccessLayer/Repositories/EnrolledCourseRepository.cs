@@ -12,30 +12,47 @@ namespace OnlineLearning.DataAccessLayer.Repositories
 {
     public class EnrolledCourseRepository:IEnrolledCourseRepository
     {
-        private readonly AppDbContext _appDbContext;
+        private readonly AppDbContext _context;
 
         public EnrolledCourseRepository(AppDbContext context)
         {
-            _appDbContext = context;
+            _context = context;
         }
 
-        public async Task<bool> IsEnrolledAsync(int userId, int courseId)
+        public async Task<bool> IsUserEnrolledAsync(int userId, int courseId)
         {
-            return await _appDbContext.EnrolledCourses.AnyAsync(e => e.UserId == userId && e.CourseId == courseId);
+            return await _context.EnrolledCourses
+                .AnyAsync(ec =>
+                    ec.UserId == userId &&
+                    ec.CourseId == courseId);
         }
 
-        public async Task AddAsync(EnrolledCourse enrolledCourse)
+        public async Task<List<int>> GetCourseIdsByUserAsync(int userId)
         {
-            _appDbContext.EnrolledCourses.Add(enrolledCourse);
-            await _appDbContext.SaveChangesAsync();
-        }
-
-        public async Task<IEnumerable<EnrolledCourse>> GetByUserIdAsync(int userId)
-        {
-            return await _appDbContext.EnrolledCourses
-                .Include(e => e.Course)
-                .Where(e => e.UserId == userId)
+            return await _context.EnrolledCourses
+                .Where(ec => ec.UserId == userId)
+                .Select(ec => ec.CourseId)
                 .ToListAsync();
         }
+
+        public async Task AddAsync(EnrolledCourse enrollment)
+        {
+            await _context.EnrolledCourses.AddAsync(enrollment);
+            await _context.SaveChangesAsync();
+        }
+        public async Task<bool> IsInstructorOwnerOfCourseAsync(int instructorId,int courseId)
+        {
+            return await _context.Courses
+                .AnyAsync(c => c.Id == courseId && c.CreatedBy == instructorId);
+        }
+        public async Task<IEnumerable<EnrolledCourse>> GetByUserIdAsync(int userId)
+        {
+            return await _context.EnrolledCourses
+                .Where(e => e.UserId == userId)
+                .Include(e => e.Course)
+                .OrderByDescending(e => e.EnrolledDate)
+                .ToListAsync();
+        }
+
     }
 }

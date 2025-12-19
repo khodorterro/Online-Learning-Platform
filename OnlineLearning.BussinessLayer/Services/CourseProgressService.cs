@@ -26,21 +26,49 @@ namespace OnlineLearning.BusinessLayer.Services
 
         public async Task<int> GetCourseProgressAsync(int userId, int courseId)
         {
-            // 1️⃣ Ensure user is enrolled
-            if (!await _enrollmentRepo.IsEnrolledAsync(userId, courseId))
-                throw new InvalidOperationException("User is not enrolled in this course");
+            if (!await _enrollmentRepo.IsUserEnrolledAsync(userId, courseId))
+                throw new UnauthorizedAccessException(
+                    "You are not enrolled in this course"
+                );
 
-            // 2️⃣ Count total lessons
+
             int totalLessons = await _lessonRepo.CountByCourseIdAsync(courseId);
             if (totalLessons == 0)
                 return 0;
 
-            // 3️⃣ Count completed lessons
+
             int completedLessons =
                 await _completionRepo.CountCompletedLessonsAsync(userId, courseId);
 
-            // 4️⃣ Calculate percentage
-            return (int)Math.Round((double)completedLessons / totalLessons * 100);
+            int percentage = (int)Math.Round(
+                (double)completedLessons / totalLessons * 100
+            );
+
+            return Math.Min(percentage, 100);
         }
+
+        public async Task<int> GetStudentProgressAsync(int courseId,int studentId,int requesterId,string role)
+        {
+            if (role == "Admin")
+            {
+                return await GetCourseProgressAsync(studentId, courseId);
+            }
+
+            if (role == "Instructor")
+            {
+                bool ownsCourse =
+                    await _enrollmentRepo.IsInstructorOwnerOfCourseAsync(requesterId,courseId);
+
+                if (!ownsCourse)
+                    throw new UnauthorizedAccessException(
+                        "You do not own this course"
+                    );
+
+                return await GetCourseProgressAsync(studentId, courseId);
+            }
+
+            throw new UnauthorizedAccessException("Access denied");
+        }
+
     }
 }

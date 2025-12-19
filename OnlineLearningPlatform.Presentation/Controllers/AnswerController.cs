@@ -1,17 +1,17 @@
 ﻿using AutoMapper;
-using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using OnlineLearning.BusinessLayer.Helpers;
 using OnlineLearning.BusinessLayer.Interfaces;
 using OnlineLearningPlatform.Presentation.DTOs.AnswerDTOs;
 
 namespace OnlineLearningPlatform.Presentation.Controllers
 {
-    [Route("api/Answer")]
+    [Route("api/answers")]
     [ApiController]
+    [Authorize]
     public class AnswerController : ControllerBase
     {
-
-
         private readonly IAnswerService _answerService;
         private readonly IMapper _mapper;
 
@@ -35,31 +35,36 @@ namespace OnlineLearningPlatform.Presentation.Controllers
             return Ok(_mapper.Map<IEnumerable<AnswerResponseDTO>>(answers));
         }
 
+        [Authorize(Roles = "Instructor")]
         [HttpPost]
         public async Task<IActionResult> Create(CreateAnswerDTO dto)
         {
-            var answer = await _answerService.CreateAsync(dto.QuestionId,dto.AnswerText,dto.IsCorrect);
+            int instructorId = User.GetUserId();
 
-            var response = _mapper.Map<AnswerResponseDTO>(answer);
-            return CreatedAtAction(nameof(GetById), new { id = response.Id }, response);
+            var answer = await _answerService.CreateAsync(dto.QuestionId,dto.AnswerText,dto.IsCorrect,instructorId);
+
+            return CreatedAtAction(nameof(GetById),new { id = answer.Id },_mapper.Map<AnswerResponseDTO>(answer));
         }
 
-
+        [Authorize(Roles = "Instructor")]
         [HttpPut("{id:int}")]
         public async Task<IActionResult> Update(int id, UpdateAnswerDTO dto)
         {
-            var answer = await _answerService.UpdateAsync(id,dto.AnswerText,dto.IsCorrect);
+            int instructorId = User.GetUserId();
+
+            var answer = await _answerService.UpdateAsync(id,dto.AnswerText,dto.IsCorrect,instructorId);
 
             return Ok(_mapper.Map<AnswerResponseDTO>(answer));
         }
 
-
+        [Authorize(Roles = "Instructor")]
         [HttpDelete("{id:int}")]
         public async Task<IActionResult> Delete(int id)
         {
-            await _answerService.DeleteAsync(id);
+            int instructorId = User.GetUserId();
+
+            await _answerService.DeleteAsync(id, instructorId);
             return NoContent();
         }
     }
 }
-

@@ -51,7 +51,7 @@ namespace OnlineLearning.BusinessLayer.Services
             if (attempt.IsSubmitted)
                 throw new InvalidOperationException("This quiz attempt is already submitted");
 
-            //  Get locked questions (rows already exist)
+            //  Get locked questions 
             var lockedAnswers = (await _attemptAnswerRepo.GetByAttemptIdAsync(attemptId))
                 .ToList();
 

@@ -1,77 +1,84 @@
 ﻿using AutoMapper;
-using Azure;
-using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.ActionConstraints;
+using OnlineLearning.BusinessLayer.Helpers;
 using OnlineLearning.BusinessLayer.Interfaces;
-using OnlineLearning.DataAccessLayer.Entities;
+using OnlineLearning.BusinessLayer.Services;
 using OnlineLearningPlatform.Presentation.DTOs.LessonDTOs;
 
 namespace OnlineLearningPlatform.Presentation.Controllers
 {
-    [Route("api/Lesson")]
+    [Route("api/lessons")]
     [ApiController]
+    [Authorize] 
     public class LessonController : ControllerBase
     {
         private readonly IlessonService _lessonService;
         private readonly IMapper _mapper;
-        public LessonController(IlessonService lessonService, IMapper mapper)
+
+        public LessonController(IlessonService lessonService,IMapper mapper)
         {
             _lessonService = lessonService;
             _mapper = mapper;
         }
 
         [HttpGet("course/{courseId:int}")]
-        public async Task<IActionResult> GetByCourseId(int courseId)
+        public async Task<IActionResult> GetLessonsByCourse(int courseId)
         {
-            var lessons = await _lessonService.GetByCourseIdAsync(courseId);
+            int userId = User.GetUserId();
+            string role = User.GetRole();
 
-            var response = _mapper.Map<IEnumerable<LessonResponseDTO>>(lessons);
-            return Ok(response);
+            var lessons = await _lessonService.GetByCourseIdAsync(courseId, userId, role);
+
+            return Ok(_mapper.Map<IEnumerable<LessonResponseDTO>>(lessons));
         }
-
 
         [HttpGet("{id:int}")]
         public async Task<IActionResult> GetById(int id)
         {
-            var lesson = await _lessonService.GetByIdAsync(id);
-            if (lesson == null) return NotFound();
+            int userId = User.GetUserId();
+            string role = User.GetRole();
+
+            var lesson = await _lessonService.GetByIdWithAccessAsync(id, userId, role);
 
             return Ok(_mapper.Map<LessonResponseDTO>(lesson));
         }
 
+
+        [Authorize(Roles = "Instructor")]
         [HttpPost]
-        public async Task<IActionResult> AddLesson(CreateLessonDTO dtO)
+        public async Task<IActionResult> AddLesson(CreateLessonDTO dto)
         {
-            var lesson = await _lessonService.AddAsync(dtO.CourseId, dtO.Title, dtO.Content,
-                dtO.VideoUrl, dtO.Order, dtO.EstimatedDuration);
+            int instructorId = User.GetUserId();
 
-            var result = _mapper.Map<LessonResponseDTO>(lesson);
+            var lesson = await _lessonService.AddAsync(dto.CourseId,dto.Title,dto.Content,dto.VideoUrl
+                ,dto.Order,dto.EstimatedDuration,instructorId);
 
-            return CreatedAtAction(nameof(GetById), new { id = result.Id }, result);
+            return CreatedAtAction(nameof(GetById),new { id = lesson.Id },_mapper.Map<LessonResponseDTO>(lesson));
         }
 
-        [HttpPut("Update/{id:int}")]
-        public async Task<IActionResult> UpdateLesson(int id,UpdateLessonDTO dto)
+        [Authorize(Roles = "Instructor")]
+        [HttpPut("{id:int}")]
+        public async Task<IActionResult> UpdateLesson(
+            int id,
+            UpdateLessonDTO dto)
         {
-            var lesson= await _lessonService.UpdateAsync(id, dto.Title, dto.Content,
-                dto.VideoUrl, dto.Order, dto.EstimatedDuration);
+            int instructorId = User.GetUserId();
 
-            if(lesson == null)
-                return NotFound();
+            var lesson = await _lessonService.UpdateAsync(id,dto.Title,dto.Content,dto.VideoUrl
+                ,dto.Order,dto.EstimatedDuration,instructorId);
 
-            var result=_mapper.Map<LessonResponseDTO>(lesson);
-
-            return Ok(result);
+            return Ok(_mapper.Map<LessonResponseDTO>(lesson));
         }
 
+        [Authorize(Roles = "Instructor")]
         [HttpDelete("{id:int}")]
         public async Task<IActionResult> DeleteLesson(int id)
         {
-            var isdeleted=await _lessonService.DeleteAsync(id);
-            if(isdeleted ==false)
-                 return NotFound();
-            return Ok("Lesson deleted Succesfully");
+            int instructorId = User.GetUserId();
+
+            await _lessonService.DeleteAsync(id, instructorId);
+            return NoContent();
         }
     }
 }

@@ -9,14 +9,16 @@ namespace OnlineLearning.BusinessLayer.Interfaces
 {
     public  interface IQuestionService
     {
-        Task<Question> GetByIdAsync(int id);
-        Task<IEnumerable<Question>> GetByQuizIdAsync(int quizId);
+        Task<Question> GetByIdWithOwnershipAsync(int questionId,int instructorId);
 
-        Task<Question> CreateAsync(int quizId,string questionText,string questionType);
+        Task<IEnumerable<Question>> GetByQuizIdWithOwnershipAsync(int quizId,int instructorId);
 
-        Task<Question> UpdateAsync(int id,string questionText,  string questionType );
+        Task<Question> CreateAsync(int quizId,string questionText,string questionType,int instructorId);
 
-        Task DeleteAsync(int id);
+        Task<Question> UpdateAsync(int questionId,string questionText,string questionType,int instructorId);
+
+        Task DeleteAsync(int questionId,int instructorId);
     }
 }
+
 

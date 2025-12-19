@@ -1,38 +1,30 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using OnlineLearning.BusinessLayer.Interfaces;
-using OnlineLearning.DataAccessLayer.Entities;
 using OnlineLearningPlatform.Presentation.DTOs.CourseCategoryDTOs;
-using System.Runtime.InteropServices;
-using OnlineLearningPlatform.Presentation.Mapping;
-using AutoMapper;
-
 
 namespace OnlineLearningPlatform.Presentation.Controllers
 {
-    [Route("api/Coursecategory")]
+    [Route("api/course-categories")]
     [ApiController]
+    [Authorize]
     public class CourseCategoryController : ControllerBase
     {
         private readonly ICourseCategoryService _courseCategoryService;
-
         private readonly IMapper _mapper;
         public CourseCategoryController(ICourseCategoryService courseCategoryService,IMapper mapper)
         {
             _courseCategoryService = courseCategoryService;
-
             _mapper = mapper;
         }
-        [HttpGet("GetAll")]
+
+        [HttpGet]
         public async Task<IActionResult> GetAll()
         {
             var categories = await _courseCategoryService.GetAllAsync();
-
-            var response = _mapper.Map<IEnumerable<CourseCategoryResponseDTO>>(categories);
-
-            return Ok(response);
+            return Ok(_mapper.Map<IEnumerable<CourseCategoryResponseDTO>>(categories));
         }
-
 
         [HttpGet("{id:int}")]
         public async Task<IActionResult> GetById(int id)
@@ -41,19 +33,21 @@ namespace OnlineLearningPlatform.Presentation.Controllers
             if (category == null)
                 return NotFound("Course category not found.");
 
-            var response = _mapper.Map<CourseCategoryResponseDTO>(category);
-            return Ok(response);
+            return Ok(_mapper.Map<CourseCategoryResponseDTO>(category));
         }
 
-        [HttpPost("AddCourseCategory")]
+        [Authorize(Roles = "Admin")]
+        [HttpPost]
         public async Task<IActionResult> Create(CreateCourseCategoryDTO dto)
         {
-            var category = await _courseCategoryService.CreateAsync(dto.Name, dto.Description);
-            var response = _mapper.Map<CourseCategoryResponseDTO>(category);
 
-            return CreatedAtAction(nameof(GetById), new { id = response.Id }, response);
+            var category = await _courseCategoryService.CreateAsync(dto.Name, dto.Description);
+
+
+            return CreatedAtAction(nameof(GetById),new { id = category.Id },_mapper.Map<CourseCategoryResponseDTO>(category));
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPut("{id:int}")]
         public async Task<IActionResult> Update(int id, UpdateCourseCategoryDTO dto)
         {
@@ -61,8 +55,8 @@ namespace OnlineLearningPlatform.Presentation.Controllers
             if (category == null)
                 return NotFound("Course category not found.");
 
-            var response = _mapper.Map<CourseCategoryResponseDTO>(category);
-            return Ok(response);
+            return Ok(_mapper.Map<CourseCategoryResponseDTO>(category));
+
         }
 
     }

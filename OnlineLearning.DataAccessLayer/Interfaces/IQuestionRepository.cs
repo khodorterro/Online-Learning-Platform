@@ -10,11 +10,20 @@ namespace OnlineLearning.DataAccessLayer.Interfaces
     public  interface IQuestionRepository
     {
         Task<Question?> GetByIdAsync(int id);
+
         Task<IEnumerable<Question>> GetByQuizIdAsync(int quizId);
-        Task<List<Question>> GetRandomByQuizIdAsync(int quizId, int count);
+
         Task<int> CountByQuizIdAsync(int quizId);
+
+        Task<IEnumerable<Question>> GetRandomByQuizIdAsync(
+            int quizId,
+            int count
+        );
+
         Task AddAsync(Question question);
+
         Task UpdateAsync(Question question);
-        Task DeleteAsync(int id);
+
+        Task DeleteAsync(Question question);
     }
 }

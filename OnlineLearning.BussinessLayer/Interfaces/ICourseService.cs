@@ -13,10 +13,13 @@ namespace OnlineLearning.BusinessLayer.Interfaces
         Task<Course?> GetByIdAsync(int id);
         Task<IEnumerable<Course>> GetPublishedAsync();
         Task<Course?> UpdateAsync(int id,string title,string shortDescription,string longDescription,
-            string difficulty,string thumbnail,bool isPublished);
+            string difficulty,string thumbnail,bool isPublishedint,int instructorId);
 
         Task<Course> CreateAsync(string title, string shortDescription, string longDescription, int categoryId,
-            string difficulty, string thumbnail, int createdBy);
+            string difficulty, string thumbnail,int instructorId);
+        Task<IEnumerable<Course>> GetAvailableCoursesAsync(int userId,string role);
+
+        Task<Course> GetByIdWithAccessAsync(int courseId,int userId,string role);
 
 
     }

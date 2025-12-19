@@ -12,60 +12,61 @@ namespace OnlineLearning.DataAccessLayer.Repositories
 {
     public class QuestionRepository : IQuestionRepository
     {
-        private readonly AppDbContext _appDbContext;
+        private readonly AppDbContext _context;
 
-        public QuestionRepository(AppDbContext appDbContext)
+        public QuestionRepository(AppDbContext context)
         {
-            _appDbContext = appDbContext;
+            _context = context;
         }
 
         public async Task<Question?> GetByIdAsync(int id)
         {
-            return await _appDbContext.Questions
-                .AsNoTracking()
+            return await _context.Questions
+                .Include(q => q.Answers)
                 .FirstOrDefaultAsync(q => q.Id == id);
         }
 
         public async Task<IEnumerable<Question>> GetByQuizIdAsync(int quizId)
         {
-            return await _appDbContext.Questions
-                .AsNoTracking()
+            return await _context.Questions
                 .Where(q => q.QuizId == quizId)
+                .Include(q => q.Answers)
                 .ToListAsync();
         }
 
-        public async Task AddAsync(Question question)
+        public async Task<int> CountByQuizIdAsync(int quizId)
         {
-            await _appDbContext.Questions.AddAsync(question);
-            await _appDbContext.SaveChangesAsync();
+            return await _context.Questions
+                .CountAsync(q => q.QuizId == quizId);
         }
 
-        public async Task UpdateAsync(Question question)
+        public async Task<IEnumerable<Question>> GetRandomByQuizIdAsync(
+            int quizId,
+            int count)
         {
-            _appDbContext.Questions.Update(question);
-            await _appDbContext.SaveChangesAsync();
-        }
-
-        public async Task DeleteAsync(int id)
-        {
-            var question = await _appDbContext.Questions.FindAsync(id);
-            if (question == null)
-                throw new KeyNotFoundException("Question not found");
-
-            _appDbContext.Questions.Remove(question);
-            await _appDbContext.SaveChangesAsync();
-        }
-        public async Task<List<Question>> GetRandomByQuizIdAsync(int quizId, int count)
-        {
-            return await _appDbContext.Questions
+            return await _context.Questions
                 .Where(q => q.QuizId == quizId)
                 .OrderBy(q => Guid.NewGuid())
                 .Take(count)
                 .ToListAsync();
         }
-        public async Task<int> CountByQuizIdAsync(int quizId)
+
+        public async Task AddAsync(Question question)
         {
-            return await _appDbContext.Questions.Where(q=>q.QuizId==quizId).CountAsync();
+            await _context.Questions.AddAsync(question);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task UpdateAsync(Question question)
+        {
+            _context.Questions.Update(question);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task DeleteAsync(Question question)
+        {
+            _context.Questions.Remove(question);
+            await _context.SaveChangesAsync();
         }
     }
 }

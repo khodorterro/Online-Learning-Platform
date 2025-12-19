@@ -21,6 +21,10 @@ namespace OnlineLearning.BusinessLayer.Helpers
 
             return int.Parse(userIdClaim.Value);
         }
+        public static string GetRole(this ClaimsPrincipal user)
+        {
+            return user.FindFirst(ClaimTypes.Role)?.Value ?? string.Empty;
+        }
     }
 
 }

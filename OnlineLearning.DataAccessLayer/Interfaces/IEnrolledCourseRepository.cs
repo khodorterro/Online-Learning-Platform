@@ -9,8 +9,10 @@ namespace OnlineLearning.DataAccessLayer.Interfaces
 {
     public  interface IEnrolledCourseRepository
     {
-        Task<bool> IsEnrolledAsync(int userId, int courseId);
-        Task AddAsync(EnrolledCourse enrolledCourse);
+        Task<bool> IsUserEnrolledAsync(int userId, int courseId);
+        Task<List<int>> GetCourseIdsByUserAsync(int userId);
+        Task AddAsync(EnrolledCourse enrollment);
+        Task<bool> IsInstructorOwnerOfCourseAsync(int instructorId, int courseId);
         Task<IEnumerable<EnrolledCourse>> GetByUserIdAsync(int userId);
     }
 }

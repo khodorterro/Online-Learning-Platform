@@ -89,14 +89,24 @@ namespace OnlineLearningPlatform.Presentation.Controllers
 
         [Authorize]
         [HttpPut("me")]
-        public async Task<IActionResult> UpdateMyProfile(UpdateUserDTO dto)
+        public async Task<IActionResult> UpdateMyProfile(string FullName)
         {
             int userId = User.GetUserId();
-            var updatedUser = await _userService.UpdateAsync(userId, dto.FullName, dto.Role);
+            string role = User.GetRole();
+            var updatedUser = await _userService.UpdateAsync(userId, FullName,role);
 
             return Ok(_mapper.Map<UserResponseDTO>(updatedUser));
         }
 
+        [Authorize (Roles="Admin")]
+        [HttpPut("User")]
+        public async Task<IActionResult> UpdateUserProfile(int id,UpdateUserDTO dto)
+        {
+            int ID = id;
+            var updatedUser = await _userService.UpdateAsync(ID, dto.FullName, dto.Role);
+
+            return Ok(_mapper.Map<UserResponseDTO>(updatedUser));
+        }
         [Authorize]
         [HttpPut("me/change-password")]
         public async Task<IActionResult> ChangeMyPassword(ChangePasswordDTO dto)

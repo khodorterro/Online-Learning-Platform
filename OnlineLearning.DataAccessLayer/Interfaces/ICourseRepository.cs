@@ -16,7 +16,7 @@ namespace OnlineLearning.DataAccessLayer.Interfaces
         public Task UpdateAsync(Course course);
         public Task AddAsync(Course course);
         public Task<IEnumerable<Course>> GetByCategoryId(int categoryId);
-        
+        Task<IEnumerable<Course>> GetByIdsAsync(IEnumerable<int> courseIds);
 
     }
 }

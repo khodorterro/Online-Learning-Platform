@@ -1,41 +1,63 @@
 ﻿using AutoMapper;
-using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using OnlineLearning.BusinessLayer.Helpers;
 using OnlineLearning.BusinessLayer.Interfaces;
-using OnlineLearning.BusinessLayer.Services;
+
 using OnlineLearningPlatform.Presentation.DTOs.QuizAttemptAnswerDTOs;
 
 namespace OnlineLearningPlatform.Presentation.Controllers
 {
-    [Route("api/QuizAttemptAnswer")]
+    [Route("api/quiz-attempt-answers")]
     [ApiController]
+    [Authorize]
     public class QuizAttemptAnswerController : ControllerBase
     {
         private readonly IQuizAttemptAnswerService _service;
         private readonly IQuizAttemptService _quizAttemptService;
         private readonly IMapper _mapper;
 
-        public QuizAttemptAnswerController(IQuizAttemptAnswerService service,IMapper mapper,IQuizAttemptService quizAttemptService)
+        public QuizAttemptAnswerController(
+            IQuizAttemptAnswerService service,
+            IMapper mapper,
+            IQuizAttemptService quizAttemptService)
         {
             _service = service;
             _mapper = mapper;
             _quizAttemptService = quizAttemptService;
         }
 
+
         [HttpGet("attempt/{attemptId:int}")]
         public async Task<IActionResult> GetByAttempt(int attemptId)
         {
+            int userId = User.GetUserId();
+            string role = User.GetRole();
+
+            var attempt = await _quizAttemptService.GetByIdAsync(attemptId);
+
+
+            if (role == "Student" && attempt.UserId != userId)
+                return Forbid();
+
             var answers = await _service.GetByAttemptIdAsync(attemptId);
             return Ok(_mapper.Map<IEnumerable<QuizAttemptAnswerResponseDTO>>(answers));
         }
 
+        [Authorize(Roles = "Student")]
         [HttpPost("submit")]
-        public async Task<IActionResult> Submit(SubmitQuizAttemptAnswersDTO dto)
+
+        public async Task<IActionResult> Submit(
+            SubmitQuizAttemptAnswersDTO dto)
         {
-            await _service.SubmitAnswersAsync(
-                dto.AttemptId,
-                dto.Answers.Select(a => (a.QuestionId, a.SelectedAnswerId))
-            );
+            int userId = User.GetUserId();
+
+            var attempt = await _quizAttemptService.GetByIdAsync(dto.AttemptId);
+
+            if (attempt.UserId != userId)
+                return Forbid();
+
+            await _service.SubmitAnswersAsync(dto.AttemptId,dto.Answers.Select(a => (a.QuestionId, a.SelectedAnswerId)));
 
             bool passed = await _quizAttemptService.IsPassedAsync(dto.AttemptId);
 
@@ -47,16 +69,21 @@ namespace OnlineLearningPlatform.Presentation.Controllers
         }
 
 
-        // GET: api/quiz-attempts/{attemptId}/questions
+
         [HttpGet("{attemptId:int}/questions")]
         public async Task<IActionResult> GetQuestionsByAttempt(int attemptId)
         {
+            int userId = User.GetUserId();
+            string role = User.GetRole();
+
+            var attempt = await _quizAttemptService.GetByIdAsync(attemptId);
+
+            if (role == "Student" && attempt.UserId != userId)
+                return Forbid();
+
             var questions = await _service
                 .GetQuestionsByAttemptAsync(attemptId);
-
-            var result = _mapper.Map<IEnumerable<AttemptQuestionDTO>>(questions);
-
-            return Ok(result);
+            return Ok(_mapper.Map<IEnumerable<AttemptQuestionDTO>>(questions));
         }
 
 
